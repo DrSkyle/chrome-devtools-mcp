@@ -58,6 +58,39 @@ chrome-devtools take_screenshot 1 --filePath screenshot.png
 chrome-devtools stop
 ```
 
+## Sessions
+
+By default, all `chrome-devtools` commands share one daemon and one browser.
+To run several agents side by side, give each one its own session ID. Each
+session ID gets a separate daemon, browser, and set of tabs. A session ID
+contains only hex digits and dashes, for example a UUID.
+
+Pass the same `--sessionId` to `start`, `status`, `stop`, and every tool
+command:
+
+```sh
+SESSION_ID=$(uuidgen)
+chrome-devtools start --sessionId="$SESSION_ID"
+chrome-devtools list_pages --sessionId="$SESSION_ID"
+chrome-devtools stop --sessionId="$SESSION_ID"
+```
+
+Or set `CHROME_DEVTOOLS_SESSION_ID` once per agent session and run the
+commands without the flag. `--sessionId` takes precedence over the variable.
+
+```sh
+export CHROME_DEVTOOLS_SESSION_ID=$(uuidgen)
+chrome-devtools list_pages
+chrome-devtools stop
+```
+
+> [!NOTE]
+> Agent hosts should set `CHROME_DEVTOOLS_SESSION_ID` in the environment of the
+> agent process. Each shell tool call can start a new shell, so an `export` in
+> one call might not apply to the next one.
+
+A session daemon keeps running until you call `stop` for its session ID.
+
 ## Command Usage
 
 The CLI supports all tools available in the MCP server even if they require a flag to activate in the MCP server (see [Tool reference](./tool-reference.md)).
